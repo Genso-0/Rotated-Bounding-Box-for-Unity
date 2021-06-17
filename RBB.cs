@@ -12,7 +12,7 @@ namespace RotatedBoundingVolume
         }
         Transform parent;
         Bounds localBounds;
-        public Vector3 center { get { return parent.position; } }
+        public Vector3 Center { get { return localBounds.center + parent.position; }  set { localBounds.center = value; } }
         public Vector3 Min { get { return ToWorldPosition(localBounds.min); } }
         public Vector3 Max { get { return ToWorldPosition(localBounds.max); } }
 
