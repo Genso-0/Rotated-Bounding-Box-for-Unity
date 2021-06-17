@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace RotatedBoundingVolume
 {
-    struct RBB
+    public struct RBB
     {
         public RBB(Transform parent, Bounds bounds)
         {
