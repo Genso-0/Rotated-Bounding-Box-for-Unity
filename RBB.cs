@@ -17,7 +17,7 @@ namespace RotatedBoundingVolume
         public Vector3 Max { get { return ToWorldPosition(localBounds.max); } }
 
         /// <summary>
-        /// Gets the world position of one of the verteces in the rotated bounding volume.
+        /// Gets the world position of one of the vertices in the rotated bounding volume.
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
