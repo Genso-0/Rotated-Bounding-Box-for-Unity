@@ -6,18 +6,23 @@ namespace RotatedBoundingVolume
     public struct RBB
     {
         public RBB(Transform parent, Bounds bounds)
-        {
+        { 
             this.parent = parent;
             this.localBounds = bounds;
         }
         Transform parent;
         Bounds localBounds;
-        public Vector3 Center { get { return localBounds.center + parent.position; }  set { localBounds.center = value; } }
+        public Vector3 Center
+        {
+            get { return ToWorldPosition(localBounds.center); } 
+            set { localBounds.center = parent.InverseTransformPoint(value)+parent.position; }
+        }
+        public Vector3 Size { get { return localBounds.size; } }
         public Vector3 Min { get { return ToWorldPosition(localBounds.min); } }
         public Vector3 Max { get { return ToWorldPosition(localBounds.max); } }
 
         /// <summary>
-        /// Gets the world position of one of the vertices in the rotated bounding volume.
+        /// Gets the world position of one of the verteces in the rotated bounding volume.
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -43,16 +48,19 @@ namespace RotatedBoundingVolume
                     return ToWorldPosition(localBounds.min + new Vector3(localBounds.size.x, localBounds.size.y, 0));
             }
             return Vector3.zero;
-        } 
+        }
         Vector3 ToWorldPosition(Vector3 pos) => (parent.rotation * (pos - parent.position)) + parent.position;
         /// <summary>
         /// Used to draw bounds in the OnDrawGizmos method.
         /// </summary>
-        public void DrawBounds()
+        public void DrawBounds(Color color)
         {
+            Gizmos.color = color;
+            Gizmos.DrawWireSphere(Center, 0.1f);
             int[] cubeEdges = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 1, 5, 2, 6, 3, 7, 0, 4 };
             for (int i = 0; i < cubeEdges.Length; i += 2)
                 Gizmos.DrawLine(GetVertex(cubeEdges[i]), GetVertex(cubeEdges[i + 1]));
+            Gizmos.color = Color.white;
         }
     }
 }
