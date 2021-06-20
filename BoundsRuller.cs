@@ -5,37 +5,35 @@ namespace RotatedBoundingVolume
     public class BoundsRuller : MonoBehaviour
     {
         public Vector3 sizeOfEachVolume = Vector3.one;
-        public Vector3 offset;
         void OnDrawGizmos()
         {
-            var mainRBB = Encapsulate.EncapsulateMeshRendererBounds(transform, offset);
-            mainRBB.DrawBounds(Color.yellow);
-            RBB edgeRBB = new RBB(transform, new Bounds(Vector3.zero, sizeOfEachVolume));
-            var corners = Encapsulate.GetBoundCorners(transform, mainRBB, edgeRBB);
+            var bounds = Encapsulate.EncapsulateMeshRendererBounds(transform);
+            var encapsulatingRBB = new RBB(transform.position, transform.rotation, bounds);
+            encapsulatingRBB.DrawBounds(Color.yellow);
 
-            for (int i = 0; i < corners.Length; i++)
-            {
-                Gizmos.DrawWireSphere(corners[i], 0.1f);
-            }
+            var corners = Encapsulate.GetBoundCorners(encapsulatingRBB, sizeOfEachVolume); 
+            for (int i = 0; i < corners.Length; i++) 
+                Gizmos.DrawWireSphere(corners[i], 0.1f); 
 
-            DrawEdgeVolumes(corners, edgeRBB);
+            DrawEdgeVolumes(corners);
         }
 
-        private void DrawEdgeVolumes(Vector3[] corners, RBB edgeRBB)
+        private void DrawEdgeVolumes(Vector3[] corners)
         {
-            foreach (var center in GetBoundedEdgePosition(corners[0], corners[1], edgeRBB.Size.z))
+            var edgeRBB = new RBB(transform.position, transform.rotation, new Bounds(Vector3.zero, sizeOfEachVolume));
+            foreach (var center in GetBoundedEdgePosition(corners[0], corners[1], sizeOfEachVolume.x))
             {
-                edgeRBB.Center = center;
-                edgeRBB.DrawBounds(Color.blue);
-            }
-            foreach (var center in GetBoundedEdgePosition(corners[0], corners[3], edgeRBB.Size.x))
-            {
-                edgeRBB.Center = center;
+                edgeRBB.OffSet = center;
                 edgeRBB.DrawBounds(Color.red);
             }
-            foreach (var center in GetBoundedEdgePosition(corners[0], corners[4], edgeRBB.Size.y))
+            foreach (var center in GetBoundedEdgePosition(corners[0], corners[3], sizeOfEachVolume.z))
             {
-                edgeRBB.Center = center;
+                edgeRBB.OffSet = center;
+                edgeRBB.DrawBounds(Color.blue);
+            }
+            foreach (var center in GetBoundedEdgePosition(corners[0], corners[4], sizeOfEachVolume.y))
+            {
+                edgeRBB.OffSet = center;
                 edgeRBB.DrawBounds(Color.green);
             }
         }
