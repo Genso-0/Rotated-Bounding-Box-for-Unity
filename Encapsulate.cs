@@ -41,7 +41,7 @@ namespace RotatedBoundingVolume
             var halfSizeY = edgeSize.y * .51f;
             var halfSizeX = edgeSize.x * .51f;
             var halfSizeZ = edgeSize.z * .51f;
-            var verts = rbb.Vertices;
+            var verts = rbb.GetVertices();
 
             return new Vector3[8]
             {
