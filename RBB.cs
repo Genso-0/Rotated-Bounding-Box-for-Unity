@@ -7,25 +7,21 @@ namespace RotatedBoundingVolume
     /// </summary>
     public struct RBB
     {
+        static readonly int[] cubeEdges = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 1, 5, 2, 6, 3, 7, 0, 4 };
         public RBB(Vector3 offset, Quaternion rotation, Bounds bounds)
         {
             this.localBounds = bounds;
             OffSet =   offset; 
             Rotation = rotation; 
         }
-        Bounds localBounds; 
+        readonly Bounds localBounds; 
         public Vector3 OffSet;
-        public Quaternion Rotation;
-        public Vector3 Center_LocalSpace { get { return localBounds.center; } set { localBounds.center = value; } }
+        public Quaternion Rotation; 
         public Vector3 Center_WorldSpace { get { return (Rotation * localBounds.center) + OffSet; } }
         public Vector3 Size { get { return localBounds.size; } }
-        public Vector3 Extents { get { return localBounds.extents; } }
-       
-        public Vector3 Right { get { return Rotation * Vector3.right; } }
-        public Vector3 Forward { get { return Rotation * Vector3.forward; } }
-        public Vector3 Up { get { return Rotation * Vector3.up; } }
-        public Vector3[] Vertices { get { return GetVertices(); } }
-        private Vector3[] GetVertices()
+        public Vector3 Extents { get { return localBounds.extents; } } 
+        
+        public Vector3[] GetVertices()
         {
             var max = localBounds.size / 2;
             var min = -max;
@@ -47,39 +43,47 @@ namespace RotatedBoundingVolume
         //https://gamedev.stackexchange.com/questions/44500/how-many-and-which-axes-to-use-for-3d-obb-collision-with-sat
         public static bool Intersects(RBB a, RBB b)
         {
-            if (Separated(a.Vertices, b.Vertices, a.Right))
+            Vector3[] aVertices = a.GetVertices();
+            Vector3[] bVertices = b.GetVertices();
+            Vector3 aRight = a.Rotation * Vector3.right;
+            Vector3 bRight = b.Rotation * Vector3.right;
+            Vector3 aForward = a.Rotation * Vector3.forward;
+            Vector3 bForward = b.Rotation * Vector3.forward;
+            Vector3 aUp = a.Rotation * Vector3.up;
+            Vector3 bUp = b.Rotation * Vector3.up;
+            if (Separated(aVertices, bVertices, aRight))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, a.Up))
+            if (Separated(aVertices, bVertices, aUp))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, a.Forward))
-                return false;
-
-            if (Separated(a.Vertices, b.Vertices, b.Right))
-                return false;
-            if (Separated(a.Vertices, b.Vertices, b.Up))
-                return false;
-            if (Separated(a.Vertices, b.Vertices, b.Forward))
-                return false;
-
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Right, b.Right)))
-                return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Right, b.Up)))
-                return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Right, b.Forward)))
+            if (Separated(aVertices, bVertices, aForward))
                 return false;
 
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Up, b.Right)))
+            if (Separated(aVertices, bVertices, bRight))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Up, b.Up)))
+            if (Separated(aVertices, bVertices, bUp))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Up, b.Forward)))
+            if (Separated(aVertices, bVertices, bForward))
                 return false;
 
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Forward, b.Right)))
+            if (Separated(aVertices, bVertices, Vector3.Cross(aRight, bRight)))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Forward, b.Up)))
+            if (Separated(aVertices, bVertices, Vector3.Cross(aRight, bUp)))
                 return false;
-            if (Separated(a.Vertices, b.Vertices, Vector3.Cross(a.Forward, b.Forward)))
+            if (Separated(aVertices, bVertices, Vector3.Cross(aRight, bForward)))
+                return false;
+
+            if (Separated(aVertices, bVertices, Vector3.Cross(aUp, bRight)))
+                return false;
+            if (Separated(aVertices, bVertices, Vector3.Cross(aUp, bUp)))
+                return false;
+            if (Separated(aVertices, bVertices, Vector3.Cross(aUp, bForward)))
+                return false;
+
+            if (Separated(aVertices, bVertices, Vector3.Cross(aForward, bRight)))
+                return false;
+            if (Separated(aVertices, bVertices, Vector3.Cross(aForward, bUp)))
+                return false;
+            if (Separated(aVertices, bVertices, Vector3.Cross(aForward, bForward)))
                 return false;
 
             return true;
@@ -120,8 +124,8 @@ namespace RotatedBoundingVolume
         {
             Gizmos.color = color;
             Gizmos.DrawWireSphere(Center_WorldSpace, 0.1f);
-            var verts = Vertices;
-            int[] cubeEdges = { 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 1, 5, 2, 6, 3, 7, 0, 4 };
+            var verts = GetVertices();
+           
 
             for (int i = 0; i < cubeEdges.Length; i += 2)
             {
