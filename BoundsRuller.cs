@@ -7,11 +7,10 @@ namespace RotatedBoundingVolume
         public Vector3 sizeOfEachVolume = Vector3.one;
         void OnDrawGizmos()
         {
-            var bounds = Encapsulate.EncapsulateMeshRendererBounds(transform);
-            var encapsulatingRBB = new RBB(transform.position, transform.rotation, bounds);
-            encapsulatingRBB.DrawBounds(Color.yellow);
+            var bounds = Encapsulate.EncapsulateMeshRendererBounds(transform); 
+            RBB.DrawBounds(bounds, transform.position, transform.rotation, Color.yellow);
 
-            var corners = Encapsulate.GetBoundCorners(encapsulatingRBB, sizeOfEachVolume); 
+            var corners = RBB.GetBoundCorners(bounds, transform.position, transform.rotation, sizeOfEachVolume); 
             for (int i = 0; i < corners.Length; i++) 
                 Gizmos.DrawWireSphere(corners[i], 0.1f); 
 
@@ -20,21 +19,19 @@ namespace RotatedBoundingVolume
 
         private void DrawEdgeVolumes(Vector3[] corners)
         {
-            var edgeRBB = new RBB(transform.position, transform.rotation, new Bounds(Vector3.zero, sizeOfEachVolume));
+            var boxBounds = new Bounds(Vector3.zero, sizeOfEachVolume);
+          //  var edgeRBB = new RBB(transform.position, transform.rotation, new Bounds(Vector3.zero, sizeOfEachVolume));
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[1], sizeOfEachVolume.x))
-            {
-                edgeRBB.OffSet = center;
-                edgeRBB.DrawBounds(Color.red);
+            { 
+                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.red);
             }
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[3], sizeOfEachVolume.z))
-            {
-                edgeRBB.OffSet = center;
-                edgeRBB.DrawBounds(Color.blue);
+            { 
+                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.blue);
             }
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[4], sizeOfEachVolume.y))
-            {
-                edgeRBB.OffSet = center;
-                edgeRBB.DrawBounds(Color.green);
+            { 
+                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.green);
             }
         }
         private IEnumerable<Vector3> GetBoundedEdgePosition(Vector3 start, Vector3 end, float sizeMagnitudeOnAxis)
