@@ -1,7 +1,7 @@
  
 using UnityEngine;
 
-namespace RotatedBoundingVolume
+namespace RBB_Utilities
 {
     /// <summary>
     /// Finds the collective bounds of all mesh renderers in an objects hierarchy.
