@@ -1,16 +1,18 @@
 using System.Collections.Generic;
 using UnityEngine;
-namespace RotatedBoundingVolume
+namespace RBB_Utilities
 {
     public class BoundsRuller : MonoBehaviour
     {
         public Vector3 sizeOfEachVolume = Vector3.one;
+        Vector3[] corners = new Vector3[8];
         void OnDrawGizmos()
         {
+            corners = new Vector3[8];
             var bounds = Encapsulate.EncapsulateMeshRendererBounds(transform); 
-            RBB.DrawBounds(bounds, transform.position, transform.rotation, Color.yellow);
+            RBB.Gizmos_DrawBounds(bounds, transform.position, transform.rotation, Color.yellow);
 
-            var corners = RBB.GetBoundCorners(bounds, transform.position, transform.rotation, sizeOfEachVolume); 
+            RBB.GetBoundCorners(ref corners, bounds, bounds.center+transform.position, transform.rotation); 
             for (int i = 0; i < corners.Length; i++) 
                 Gizmos.DrawWireSphere(corners[i], 0.1f); 
 
@@ -23,15 +25,15 @@ namespace RotatedBoundingVolume
           //  var edgeRBB = new RBB(transform.position, transform.rotation, new Bounds(Vector3.zero, sizeOfEachVolume));
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[1], sizeOfEachVolume.x))
             { 
-                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.red);
+                RBB.Gizmos_DrawBounds(boxBounds, center, transform.rotation, Color.red);
             }
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[3], sizeOfEachVolume.z))
             { 
-                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.blue);
+                RBB.Gizmos_DrawBounds(boxBounds, center, transform.rotation, Color.blue);
             }
             foreach (var center in GetBoundedEdgePosition(corners[0], corners[4], sizeOfEachVolume.y))
             { 
-                RBB.DrawBounds(boxBounds, center, transform.rotation, Color.green);
+                RBB.Gizmos_DrawBounds(boxBounds, center, transform.rotation, Color.green);
             }
         }
         private IEnumerable<Vector3> GetBoundedEdgePosition(Vector3 start, Vector3 end, float sizeMagnitudeOnAxis)
